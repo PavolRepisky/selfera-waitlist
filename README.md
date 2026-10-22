@@ -6,9 +6,9 @@ who joins with it.
 
 Vite + TypeScript, no framework. Sign-ups go to Supabase.
 
-The layout started from the Trancewait Framer template; the colours, type
-(Quicksand) and shapes are the mobile app's own, from
-`mobile-app/constants/theme.ts`. The background is a photo
+The layout started from the Trancewait Framer template; the colours and
+shapes are the mobile app's own, from `mobile-app/constants/theme.ts`. The type
+is not: Geist for the headline, Inter Tight for the name, Figtree for the rest. The background is a photo
 plus a depth map (`public/scene/`) that `src/depth.ts` shifts with the
 cursor. The chrome logo is the template's liquid-metal shader
 (`src/metal.frag.glsl`), run on `public/logo-mask.png`. To swap the logo,

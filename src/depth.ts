@@ -42,7 +42,7 @@ const SMOOTHING = 0.08;
 const ZOOM = 1;
 // The objects on the hill sit left of centre, so narrow screens crop around
 // them rather than the middle. Keep in step with .scene's background-position.
-const FOCUS: [number, number] = [0.35, 0.5];
+const FOCUS: [number, number] = [0.25, 0.5];
 
 export function startDepthScene(canvas: HTMLCanvasElement, area: HTMLElement, image: string, depthMap: string) {
   const gl = canvas.getContext('webgl', { antialias: false }) as WebGLRenderingContext | null;
