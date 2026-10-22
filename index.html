@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SelfEra — join the waitlist</title>
+    <meta name="description" content="Join an era, photograph every task, post your day. SelfEra is coming to iPhone and Android — get on the list." />
+    <meta property="og:title" content="SelfEra — join the waitlist" />
+    <meta property="og:description" content="One era. Every task, photographed. Every day, posted." />
+    <meta property="og:image" content="/scene/scene.jpg" />
+    <meta name="theme-color" content="#faf9f7" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preload" as="image" href="/scene/scene.jpg" />
+    <!-- Linked here rather than imported from main.ts, so the page is styled
+         before its first paint in dev too, not once the script has run. -->
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main id="stage" class="stage">
+      <div class="scene" aria-hidden="true">
+        <canvas id="scene"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="metal reveal" style="--delay: 0.6s" aria-hidden="true">
+          <canvas id="metal"></canvas>
+        </div>
+
+        <div class="texts">
+          <h2 class="eyebrow reveal" style="--delay: 0.65s">SelfEra</h2>
+          <h1 class="reveal" style="--delay: 0.75s">Welcome to your new era</h1>
+          <p class="lede reveal" style="--delay: 0.85s">
+            The small things you do every day decide who you’ll be a year from now.
+          </p>
+        </div>
+
+        <form id="join" class="form reveal" style="--delay: 0.95s" novalidate>
+          <label class="pill">
+            <span class="sr-only">Email</span>
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="email"
+              placeholder="you@email.com" required />
+            <button id="submit" class="submit" type="submit">Start my era</button>
+          </label>
+        </form>
+
+        <div id="done" class="done" hidden>
+          <div class="ticket">
+            <span>Your place in line</span>
+            <strong id="place">#—</strong>
+          </div>
+          <p class="hint">Each friend who joins with your link moves you up 3 places.</p>
+          <div class="share">
+            <input id="link" type="text" readonly aria-label="Your invite link" />
+            <button id="copy" class="submit" type="button">Copy</button>
+          </div>
+          <div class="channels">
+            <button id="native" class="channel" type="button" hidden>Share…</button>
+            <a id="to-whatsapp" class="channel" target="_blank" rel="noopener">WhatsApp</a>
+            <a id="to-x" class="channel" target="_blank" rel="noopener">X</a>
+            <a id="to-mail" class="channel">Email</a>
+          </div>
+        </div>
+
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+
+        <div class="proof reveal" style="--delay: 1.05s">
+          <span class="faces" aria-hidden="true">
+            <span><img src="/photos/gym-floor-selfie.jpg" alt="" /></span>
+            <span><img src="/photos/sunset-walk.jpg" alt="" /></span>
+            <span><img src="/photos/book-in-bed.jpg" alt="" /></span>
+          </span>
+          <p id="count">Coming to iOS &amp; Android</p>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,222 @@
+/* The layout follows the Trancewait template; the look is the mobile app's
+ * own (mobile-app/constants/theme.ts): its ink and warm greys, the peach /
+ * rose / lavender accent, Quicksand throughout, 32px cards and pill buttons. */
+:root {
+  --white: #ffffff;
+  --ink: #141414;
+  --ink-hover: #2e2e2e;
+  --ink-soft: #55534f;
+  --grey-dark: #9c9c9c;
+  --grey-fill: #f2f2f2;
+  --page: #faf9f7;
+  --red: #e63950;
+  /* gradients.accent, also the logo's metal (see src/metal.ts). */
+  --peach: #f7c3a0;
+  --rose: #efa3b7;
+  --lavender: #d8c6ee;
+  --accent: linear-gradient(90deg, var(--peach), var(--rose), var(--lavender));
+
+  --ease: cubic-bezier(0.6, 0, 0.2, 1);
+  --font: 'Quicksand', system-ui, sans-serif;
+  --card-radius: 32px;
+
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+/* The two faces of the card and the form/result swap through `hidden`,
+ * which a display rule would otherwise beat. */
+[hidden] { display: none !important; }
+
+html, body { margin: 0; }
+h1, h2, p { margin: 0; }
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font: 500 16px/1.4 var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+
+/* --- stage: the depth scene with the card centred over it -------------- */
+
+.stage {
+  position: relative; overflow: clip;
+  min-height: 100vh; min-height: 100svh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px 24px;
+}
+
+.scene {
+  position: absolute; inset: 0;
+  /* The plain photo stands in until the WebGL maps load, or for good when
+   * WebGL is missing; at rest the shader draws exactly this. */
+  background: #111 url('/scene/scene.jpg') 35% 50% / cover no-repeat;
+}
+.scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; }
+.scene canvas.ready { opacity: 1; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* --- card --------------------------------------------------------------- */
+
+/* One column: logo, words, the form (or the place it earns), proof. */
+.card {
+  position: relative; width: 100%; max-width: 440px; padding: 40px 32px 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 24px;
+  border-radius: var(--card-radius);
+  background: linear-gradient(170deg, #f7c3a07a 0%, #efa3b752 24%, #d8c6ee47 44%, #faf9f7ad 64%);
+  -webkit-backdrop-filter: blur(4px) saturate(1.2);
+  backdrop-filter: blur(4px) saturate(1.2);
+  box-shadow:
+    0 0.78px 0.78px -0.54px #0000001c, 0 1.92px 1.92px -1.07px #0000001c,
+    0 3.64px 3.64px -1.61px #0000001c, 0 6.35px 6.35px -2.14px #0000001a,
+    0 11.05px 11.05px -2.68px #00000017, 0 20.24px 20.24px -3.21px #00000012,
+    0 40px 40px -3.75px #0000000a;
+  animation: card-in 1s var(--ease) 0.5s both;
+}
+.card::after {
+  content: ''; position: absolute; inset: 0; border: 1px solid var(--white);
+  border-radius: inherit; pointer-events: none;
+}
+
+.metal { position: relative; width: 96px; height: 96px; flex: none; margin-bottom: -8px; }
+.metal canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.2s ease-in-out; }
+.metal canvas.ready { opacity: 1; }
+/* Without WebGL 2 the logo still shows, in a still version of the metal. */
+.metal::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.7) 10%, transparent 40%, rgba(0, 0, 0, 0.2) 62%, transparent 85%),
+    linear-gradient(45deg, var(--peach), var(--rose), var(--lavender));
+  -webkit-mask: url('/logo-mask.png') center / contain no-repeat;
+  mask: url('/logo-mask.png') center / contain no-repeat;
+  transition: opacity 0.2s ease-in-out;
+}
+.metal:has(canvas.ready)::before { opacity: 0; }
+
+.texts {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  text-align: center;
+}
+/* The name set under the metal logo, so the two read as one lockup. */
+.eyebrow {
+  margin: -2px 0 14px;
+  font: 700 22px/1 var(--font); letter-spacing: -0.03em; color: var(--ink);
+}
+h1 { font: 700 44px/1.05 var(--font); letter-spacing: -0.04em; color: #33302d; text-wrap: balance; }
+.lede { max-width: 360px; color: var(--ink-soft); font: 500 16px/1.45 var(--font); text-wrap: balance; }
+
+/* --- the form: one pill, the button inside it --------------------------- */
+
+.form { width: 100%; }
+
+.pill {
+  display: flex; align-items: center; gap: 6px; padding: 6px;
+  border: 1.5px solid var(--white); border-radius: 999px; background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 24px -12px rgba(20, 20, 20, 0.25);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.pill:focus-within { border-color: var(--rose); background: var(--white); box-shadow: 0 0 0 4px rgba(239, 163, 183, 0.25); }
+.pill input {
+  flex: 1; min-width: 0; padding: 12px 8px 12px 16px; margin: 0;
+  border: 0; background: none; outline: none;
+  font: 600 16px/1.2 var(--font); color: var(--ink);
+}
+.pill input::placeholder { color: var(--grey-dark); opacity: 1; }
+
+/* The app's solid pill: ink with white type. */
+.submit {
+  flex: none; padding: 13px 20px; border-radius: 999px; background: var(--ink);
+  font: 700 15px/1.2 var(--font); color: var(--white); white-space: nowrap;
+  transition: background-color 0.2s ease, transform 0.4s cubic-bezier(0.3, 1.3, 0.5, 1), opacity 0.2s ease;
+}
+.submit:not(:disabled):active { transform: scale(0.97); }
+.submit:disabled { opacity: 0.5; cursor: default; }
+.submit.error { background: rgba(230, 57, 80, 0.12); color: var(--red); }
+
+@media (hover: hover) {
+  .submit:not(:disabled):not(.error):hover { background: var(--ink-hover); }
+  .channel:hover { background: var(--white); }
+}
+.submit:focus-visible, .channel:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
+
+.status { width: 100%; margin-top: -12px; text-align: center; font: 600 14px/1.3 var(--font); color: var(--ink-soft); }
+.status:empty { display: none; }
+
+/* --- after joining: the place, and the link that improves it ------------ */
+
+.joined .lede { display: none; }
+
+.done { width: 100%; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+
+.ticket {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 18px 16px 14px;
+  border-radius: 24px; background: rgba(255, 255, 255, 0.75);
+}
+.ticket span { font: 700 12px/1.2 var(--font); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+/* The place marked with the accent, like a highlighter stroke under it. */
+.ticket strong {
+  font: 700 48px/1.1 var(--font); letter-spacing: -0.04em; padding: 0 6px;
+  background: var(--accent) 0 86% / 100% 0.3em no-repeat;
+}
+.hint { color: var(--ink-soft); font-size: 14px; text-wrap: balance; }
+
+.share { display: flex; gap: 6px; padding: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.85); }
+.share input {
+  flex: 1; min-width: 0; padding: 0 8px 0 14px; margin: 0; border: 0; background: none; outline: none;
+  font: 600 14px/1.2 var(--font); color: var(--ink); text-overflow: ellipsis;
+}
+
+.channels { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.channel {
+  padding: 8px 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.6);
+  font: 700 13px/1.2 var(--font); color: var(--ink); text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+/* --- proof ------------------------------------------------------------- */
+
+.proof { display: flex; align-items: center; gap: 12px; }
+.faces { display: flex; }
+.faces span { position: relative; width: 16px; height: 28px; flex: none; }
+.faces img {
+  position: absolute; top: 0; left: -6px; width: 28px; height: 28px; max-width: none;
+  border: 2px solid var(--white); border-radius: 999px; object-fit: cover;
+}
+#count { font: 600 14px/1.3 var(--font); color: var(--ink-soft); white-space: nowrap; }
+
+
+/* --- entrances ---------------------------------------------------------- */
+
+.reveal { animation: reveal 0.7s var(--ease) var(--delay, 0s) both; }
+.pop { animation: pop 0.6s var(--ease) both; }
+
+@keyframes card-in { from { opacity: 0; transform: translateY(30px); } }
+@keyframes reveal { from { opacity: 0; filter: blur(10px); transform: translateY(6px); } }
+@keyframes pop { from { opacity: 0; transform: scale(0.94); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .card, .reveal, .pop { animation: none; }
+}
+
+/* --- phone -------------------------------------------------------------- */
+
+@media (max-width: 809.98px) {
+  .stage { padding: 16px; }
+  .card { padding: 32px 20px 24px; gap: 20px; }
+  h1 { font-size: 38px; }
+}
+@media (max-width: 379.98px) {
+  .pill { flex-direction: column; align-items: stretch; border-radius: 24px; }
+  .pill input { padding: 12px; text-align: center; }
+}
+

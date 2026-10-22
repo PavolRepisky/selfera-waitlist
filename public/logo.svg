@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="7 7 86 86" fill="none" stroke-width="12" stroke-linecap="round">
+  <!-- gradients.accent from mobile-app/constants/theme.ts, bottom left to top right -->
+  <defs>
+    <linearGradient id="accent" gradientUnits="userSpaceOnUse" x1="16" y1="84" x2="84" y2="16">
+      <stop stop-color="#F7C3A0"/>
+      <stop offset="0.5" stop-color="#EFA3B7"/>
+      <stop offset="1" stop-color="#D8C6EE"/>
+    </linearGradient>
+  </defs>
+  <path d="M58.1 14.92A36 36 0 0 1 80.86 31.46" stroke="url(#accent)"/>
+  <path d="M85.86 46.86A36 36 0 0 1 77.17 73.62" stroke="url(#accent)"/>
+  <path d="M64.07 83.14A36 36 0 0 1 35.93 83.14" stroke="url(#accent)"/>
+  <path d="M22.83 73.62A36 36 0 0 1 14.14 46.86" stroke="url(#accent)"/>
+  <path d="M19.14 31.46A36 36 0 0 1 41.9 14.92" stroke="url(#accent)"/>
+</svg>
