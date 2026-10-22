@@ -1,6 +1,6 @@
-# SelfEra waitlist
+# Selfera waitlist
 
-The pre-launch page for [SelfEra](../mobile-app): one email field, your place
+The pre-launch page for [Selfera](../mobile-app): one email field, your place
 on the list, and an invite link that moves you up three places for each friend
 who joins with it.
 

@@ -31,7 +31,7 @@ const source = params.get('utm_source') ?? (document.referrer ? new URL(document
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-const INVITE = 'I just joined the SelfEra waitlist. Start your era with me:';
+const INVITE = 'I just joined the Selfera waitlist. Start your era with me:';
 const SUBMIT = 'Start my era';
 
 form.addEventListener('submit', async (event) => {
@@ -78,7 +78,7 @@ copy.addEventListener('click', async () => {
 // The phone's own share sheet where there is one, next to the fixed links.
 if ('share' in navigator) native.hidden = false;
 native.addEventListener('click', () => {
-  navigator.share({ title: 'SelfEra', text: INVITE, url: link.value }).catch(() => {});
+  navigator.share({ title: 'Selfera', text: INVITE, url: link.value }).catch(() => {});
 });
 
 async function join(value: string): Promise<Joined> {
@@ -105,7 +105,7 @@ function show({ place, code, total, already }: Joined) {
   const text = encodeURIComponent(`${INVITE} ${link.value}`);
   $<HTMLAnchorElement>('to-whatsapp').href = `https://wa.me/?text=${text}`;
   $<HTMLAnchorElement>('to-x').href = `https://x.com/intent/post?text=${text}`;
-  $<HTMLAnchorElement>('to-mail').href = `mailto:?subject=${encodeURIComponent('Join me on SelfEra')}&body=${text}`;
+  $<HTMLAnchorElement>('to-mail').href = `mailto:?subject=${encodeURIComponent('Join me on Selfera')}&body=${text}`;
   // Once in, the card is about the place and the link: the pitch steps aside.
   document.querySelector('.card')!.classList.add('joined');
   document.querySelector('h1')!.textContent = 'You’re on the list.';
@@ -113,7 +113,7 @@ function show({ place, code, total, already }: Joined) {
   done.hidden = false;
   done.classList.add('pop');
   say(already ? 'You were already on the list — here’s your spot.' : '');
-  count.textContent = `${compact(total)} on the SelfEra waitlist`;
+  count.textContent = `${compact(total)} on the Selfera waitlist`;
 }
 
 // 22300 → "22.3k+", the way the count reads on the card.

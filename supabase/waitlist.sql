@@ -1,4 +1,4 @@
--- SelfEra waitlist.
+-- Selfera waitlist.
 --
 -- Run once in the Supabase SQL editor (the app's project or a separate one).
 -- It is kept out of the app repo's migrations on purpose: the Supabase CLI
