@@ -16,8 +16,7 @@ const status = $<HTMLParagraphElement>('status');
 const done = $<HTMLDivElement>('done');
 const link = $<HTMLInputElement>('link');
 const copy = $<HTMLButtonElement>('copy');
-const count = $<HTMLParagraphElement>('count');
-const native = $<HTMLButtonElement>('native');
+const share = $<HTMLButtonElement>('share');
 
 startDepthScene($<HTMLCanvasElement>('scene'), $('stage'), '/scene/scene.jpg', '/scene/depth.jpg');
 startMetal($<HTMLCanvasElement>('metal'), '/logo-mask.png');
@@ -31,8 +30,8 @@ const source = params.get('utm_source') ?? (document.referrer ? new URL(document
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-const INVITE = 'I just joined the Selfera waitlist. Start your era with me:';
-const SUBMIT = 'Start my era';
+const INVITE = 'Start an era with me? On Selfera we photograph our habits every day, so neither of us quits. Get on the waitlist:';
+const SUBMIT = 'Get early access';
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -75,9 +74,10 @@ copy.addEventListener('click', async () => {
   setTimeout(() => (copy.textContent = 'Copy'), 1600);
 });
 
-// The phone's own share sheet where there is one, next to the fixed links.
-if ('share' in navigator) native.hidden = false;
-native.addEventListener('click', () => {
+// The phone's own share sheet, which already lists WhatsApp, Messages and the
+// rest; where there is none, the link and Copy are enough.
+if (typeof navigator.share === 'function') share.hidden = false;
+share.addEventListener('click', () => {
   navigator.share({ title: 'Selfera', text: INVITE, url: link.value }).catch(() => {});
 });
 
@@ -98,28 +98,18 @@ async function join(value: string): Promise<Joined> {
   return data;
 }
 
-function show({ place, code, total, already }: Joined) {
+function show({ place, code, already }: Joined) {
   const base = (import.meta.env.VITE_SITE_URL as string | undefined) || location.origin;
   link.value = `${base.replace(/\/$/, '')}/?ref=${code}`;
   $('place').textContent = `#${place.toLocaleString()}`;
-  const text = encodeURIComponent(`${INVITE} ${link.value}`);
-  $<HTMLAnchorElement>('to-whatsapp').href = `https://wa.me/?text=${text}`;
-  $<HTMLAnchorElement>('to-x').href = `https://x.com/intent/post?text=${text}`;
-  $<HTMLAnchorElement>('to-mail').href = `mailto:?subject=${encodeURIComponent('Join me on Selfera')}&body=${text}`;
-  // Once in, the card is about the place and the link: the pitch steps aside.
+  // Once in, the card is about the place and the link: the pitch and the
+  // count step aside, since the place already says where you stand.
   document.querySelector('.card')!.classList.add('joined');
   document.querySelector('h1')!.textContent = 'You’re on the list.';
   form.hidden = true;
   done.hidden = false;
   done.classList.add('pop');
-  say(already ? 'You were already on the list — here’s your spot.' : '');
-  count.textContent = `${compact(total)} on the Selfera waitlist`;
-}
-
-// 22300 → "22.3k+", the way the count reads on the card.
-function compact(n: number) {
-  if (n < 1000) return n.toLocaleString();
-  return `${(Math.floor(n / 100) / 10).toLocaleString()}k+`;
+  say(already ? 'You were already on the list.' : '');
 }
 
 function say(message: string) {
