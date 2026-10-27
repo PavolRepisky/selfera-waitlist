@@ -8,6 +8,23 @@ const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 const supabase = url && key ? createClient(url, key, { auth: { persistSession: false } }) : null;
 
+// Analytics are optional: without a key the page runs the same, it just
+// isn't counted. PostHog is loaded after the page, off the first paint;
+// pageviews and clicks it captures on its own, the waitlist funnel through
+// the events below.
+const posthogKey = import.meta.env.VITE_POSTHOG_KEY as string | undefined;
+const analytics = posthogKey
+  ? import('posthog-js').then(({ default: posthog }) => {
+      posthog.init(posthogKey, {
+        api_host: (import.meta.env.VITE_POSTHOG_HOST as string | undefined) || 'https://eu.i.posthog.com',
+        person_profiles: 'identified_only',
+      });
+      return posthog;
+    })
+  : null;
+const track = (event: string, properties?: Record<string, unknown>) =>
+  analytics?.then((posthog) => posthog.capture(event, properties)).catch(() => {});
+
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const form = $<HTMLFormElement>('join');
 const email = $<HTMLInputElement>('email');
@@ -38,6 +55,7 @@ form.addEventListener('submit', async (event) => {
   submit.classList.remove('error');
   const value = email.value.trim();
   if (!EMAIL.test(value)) {
+    track('waitlist_invalid_email');
     say('That email doesn’t look right.');
     email.focus();
     return;
@@ -47,9 +65,15 @@ form.addEventListener('submit', async (event) => {
   submit.textContent = 'Saving…';
   say('');
   try {
-    show(await join(value));
+    const joined = await join(value);
+    // The invite code is the person's id: it ties their sign-up to the
+    // friends who join with their link, without sending the email along.
+    analytics?.then((posthog) => posthog.identify(joined.code, { referred_by: ref, source })).catch(() => {});
+    track('waitlist_joined', { place: joined.place, total: joined.total, already: joined.already, referred: !!ref });
+    show(joined);
   } catch (error) {
     console.error(error);
+    track('waitlist_join_failed', { message: error instanceof Error ? error.message : String(error) });
     submit.classList.add('error');
     submit.textContent = 'Something went wrong';
   } finally {
@@ -70,6 +94,7 @@ copy.addEventListener('click', async () => {
     link.select();
     document.execCommand('copy');
   }
+  track('invite_link_copied');
   copy.textContent = 'Copied';
   setTimeout(() => (copy.textContent = 'Copy'), 1600);
 });
@@ -78,7 +103,10 @@ copy.addEventListener('click', async () => {
 // rest; where there is none, the link and Copy are enough.
 if (typeof navigator.share === 'function') share.hidden = false;
 share.addEventListener('click', () => {
-  navigator.share({ title: 'Selfera', text: INVITE, url: link.value }).catch(() => {});
+  navigator
+    .share({ title: 'Selfera', text: INVITE, url: link.value })
+    .then(() => track('invite_link_shared'))
+    .catch(() => {});
 });
 
 async function join(value: string): Promise<Joined> {

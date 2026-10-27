@@ -41,8 +41,17 @@ the same email returns the existing spot.
 Exporting the list: Supabase dashboard → Table editor → `waitlist` → Export
 to CSV, or `select email, created_at from waitlist order by id`.
 
+### Analytics
+
+PostHog, switched on by setting `VITE_POSTHOG_KEY` (and `VITE_POSTHOG_HOST`
+for a US project). It records pageviews and clicks on its own, plus
+`waitlist_joined`, `waitlist_join_failed`, `waitlist_invalid_email`,
+`invite_link_copied` and `invite_link_shared`. People are identified by their
+invite code, never their email, with `referred_by` set to the code they came
+in on.
+
 ## Deploy
 
 `npm run build` writes a static site to `dist/`. Host it anywhere (Vercel,
-Netlify, Cloudflare Pages) with the three `VITE_*` variables set at build time.
+Netlify, Cloudflare Pages) with the `VITE_*` variables set at build time.
 Set `VITE_SITE_URL` to the public address so invite links point there.

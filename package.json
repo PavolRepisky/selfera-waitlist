@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.118.0"
+    "@supabase/supabase-js": "^2.118.0",
+    "posthog-js": "^1.438.24"
   },
   "devDependencies": {
     "typescript": "^7.0.2",
