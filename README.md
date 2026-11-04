@@ -50,8 +50,24 @@ for a US project). It records pageviews and clicks on its own, plus
 invite code, never their email, with `referred_by` set to the code they came
 in on.
 
+It keeps nothing in the browser (`persistence: 'memory'`), so the page needs no
+cookie banner and a return visit counts as a new visitor. Session recording is
+off. The Privacy Policy says both, so change it with them.
+
+### Policy pages
+
+`privacy.html`, `terms.html`, `support.html` and `delete-account.html` are
+plain pages styled by `src/legal.css`, with no script and so no analytics. The
+stores and the app link to them at `/privacy`, `/terms`, `/support` and
+`/delete-account`, so those addresses mustn't change. A new page also goes in
+`vite.config.ts`.
+
+They state what the app and its backend really do. When that changes, such as
+a new provider, change them too and update the date at the top.
+
 ## Deploy
 
 `npm run build` writes a static site to `dist/`. Host it anywhere (Vercel,
 Netlify, Cloudflare Pages) with the `VITE_*` variables set at build time.
 Set `VITE_SITE_URL` to the public address so invite links point there.
+`vercel.json` turns on clean URLs; another host needs the same setting.

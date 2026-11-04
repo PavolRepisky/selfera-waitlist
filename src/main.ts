@@ -12,12 +12,21 @@ const supabase = url && key ? createClient(url, key, { auth: { persistSession: f
 // isn't counted. PostHog is loaded after the page, off the first paint;
 // pageviews and clicks it captures on its own, the waitlist funnel through
 // the events below.
+//
+// Nothing is kept in the browser, so the page needs no cookie banner: storing
+// an identifier would need the visitor's consent in the EU. The cost is that a
+// return visit counts as someone new. Not `cookieless_mode`, which drops every
+// event unless the PostHog project has it switched on too. Recording stays off
+// here so a project setting can't start something the Privacy Policy doesn't
+// mention.
 const posthogKey = import.meta.env.VITE_POSTHOG_KEY as string | undefined;
 const analytics = posthogKey
   ? import('posthog-js').then(({ default: posthog }) => {
       posthog.init(posthogKey, {
         api_host: (import.meta.env.VITE_POSTHOG_HOST as string | undefined) || 'https://eu.i.posthog.com',
         person_profiles: 'identified_only',
+        persistence: 'memory',
+        disable_session_recording: true,
       });
       return posthog;
     })

@@ -1,0 +1,45 @@
+/* The policy and help pages. They load style.css first for its colours and
+ * type, then set long text on the plain page colour: nothing here should
+ * compete with the words, and a reviewer may read them on a phone. */
+
+.doc {
+  width: 100%; max-width: 680px; margin: 0 auto; padding: 32px 24px 64px;
+}
+
+.doc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 48px; color: var(--ink); text-decoration: none; }
+.doc-top img { width: 28px; height: 28px; display: block; }
+.doc-top span { font: 700 20px/1 var(--font-brand); letter-spacing: -0.04em; }
+
+.doc h1 { font-size: 40px; line-height: 1.05; }
+.doc .updated { margin-top: 12px; color: var(--ink-soft); font-size: 14px; }
+.doc .intro { margin-top: 24px; font-size: 18px; line-height: 1.5; color: var(--ink); }
+
+.doc h2 { margin-top: 40px; font: 500 24px/1.2 var(--font-title); letter-spacing: -0.03em; color: var(--ink); }
+.doc h3 { margin: 24px 0 0; font: 600 16px/1.4 var(--font); color: var(--ink); }
+.doc p, .doc ul, .doc ol { margin: 12px 0 0; color: var(--ink-soft); line-height: 1.6; }
+.doc ul, .doc ol { padding-left: 22px; }
+.doc li + li { margin-top: 6px; }
+.doc strong { color: var(--ink); font-weight: 600; }
+.doc a { color: var(--ink); text-underline-offset: 2px; }
+
+/* A table of a few short rows; on a phone it scrolls inside its own box
+ * rather than widening the page. */
+.doc-table { margin-top: 16px; overflow-x: auto; }
+.doc table { width: 100%; min-width: 480px; border-collapse: collapse; font-size: 15px; line-height: 1.45; }
+.doc th, .doc td { padding: 10px 12px 10px 0; border-bottom: 1px solid #e7e5e1; text-align: left; vertical-align: top; color: var(--ink-soft); }
+.doc th { color: var(--ink); font-weight: 600; }
+
+.doc-foot {
+  display: flex; flex-wrap: wrap; gap: 8px 20px;
+  margin-top: 56px; padding-top: 20px; border-top: 1px solid #e7e5e1;
+  font-size: 14px;
+}
+.doc-foot a { color: var(--ink-soft); text-decoration: none; }
+.doc-foot a:hover { color: var(--ink); }
+.doc-foot a[aria-current='page'] { color: var(--ink); font-weight: 600; }
+
+@media (max-width: 809.98px) {
+  .doc { padding: 24px 16px 48px; }
+  .doc-top { margin-bottom: 32px; }
+  .doc h1 { font-size: 34px; }
+}
