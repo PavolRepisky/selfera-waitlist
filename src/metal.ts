@@ -95,7 +95,9 @@ export function startMetal(canvas: HTMLCanvasElement, logo: string) {
   const uPixelRatio = u('u_pixelRatio');
 
   const resize = () => {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Drawn at twice the screen's density and scaled down by the browser,
+    // which smooths the edge; the logo is small enough for that to be cheap.
+    const dpr = Math.min((window.devicePixelRatio || 1) * 2, 4);
     canvas.width = Math.round(canvas.clientWidth * dpr);
     canvas.height = Math.round(canvas.clientHeight * dpr);
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -133,9 +135,12 @@ export function startMetal(canvas: HTMLCanvasElement, logo: string) {
     gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    // The map is far larger than the canvas, so without mipmaps each pixel
+    // samples a single spot of it and the logo's edge comes out jagged.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, map);
+    gl.generateMipmap(gl.TEXTURE_2D);
     resize();
     ready = true;
     canvas.classList.add('ready');

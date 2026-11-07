@@ -213,7 +213,7 @@ void main() {
     vec2 dudy = dFdy(uv);
 
     vec4 hm = textureGrad(u_image_heightmap, uv, dudx, dudy);
-    float fw_b = 0.5 * fwidth(hm.b);
+    float fw_b = max(0.5 * fwidth(hm.b), 1e-4);
     float hardMask = smoothstep(0.5 - fw_b, 0.5 + fw_b, hm.b);
     float opacity = hardMask * (1.0 - hm.g);
 
@@ -229,7 +229,7 @@ void main() {
         // Aspects match — no letterboxing, no seam, no fade needed
         edgeDist = 1.0;
     }
-    opacity *= smoothstep(0.0, 1.0 * fwidth(edgeDist), edgeDist);
+    opacity *= smoothstep(0.0, max(fwidth(edgeDist), 1e-4), edgeDist);
 
     if (opacity < 0.001) {
         fragColor = vec4(u_colorBack.rgb * u_colorBack.a, u_colorBack.a);
