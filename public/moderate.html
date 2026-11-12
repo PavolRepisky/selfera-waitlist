@@ -1,0 +1,209 @@
+<!doctype html>
+<!--
+  The confirmation page behind a report email's buttons. The email's link
+  carries a signed token for one report and one action, and the address of
+  the `moderate` function, in its fragment (#t=…&api=…), which never reaches
+  this site's server. The page shows the report, and acts only when you
+  press Confirm — mail apps open links on their own to scan them, so a link
+  must never act by itself. A plain file in public/, copied as it is, so
+  none of the site's scripts or analytics run on it; cleanUrls serves it at
+  /moderate, and the redirect from /moderate.html keeps the fragment. The
+  function it calls is in the app's repo: supabase/functions/moderate.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Selfera moderation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* The app's palette: ink, white, the two greys, and red only for what
+     can't be taken back. */
+  :root {
+    --ink: #141414; --muted: #9C9C9C; --ghost: #D7D6D3; --fill: #F2F2F2;
+    --page: #FFFFFF; --card: #F2F2F2; --red: #E63950; --on-red: #FFFFFF;
+    --on-ink: #FFFFFF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink: #F2F2F2; --muted: #9C9C9C; --ghost: #3A3A3A; --fill: #1F1F1F;
+      --page: #0B0B0B; --card: #1A1A1A; --on-ink: #141414; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+    font: 600 16px/1.45 Quicksand, -apple-system, system-ui, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
+  .brand { color: var(--muted); font-weight: 700; font-size: 14px; margin-bottom: 20px; }
+  h1 { font-size: 23px; margin: 0 0 6px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 16px; }
+  dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; }
+  dt { color: var(--muted); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+  .quote { font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .photos figure { margin: 0; }
+  .photos img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 16px; background: var(--fill); display: block; }
+  .photos figcaption { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px;
+    background: var(--ink); color: var(--on-ink); margin-left: 6px; vertical-align: 2px; }
+  label { display: block; color: var(--muted); font-size: 14px; margin: 8px 0 6px; }
+  textarea { width: 100%; min-height: 72px; border: 0; border-radius: 16px; padding: 12px 14px; resize: vertical;
+    background: var(--card); color: var(--ink); font: 500 16px/1.4 Quicksand, system-ui, sans-serif; }
+  button { width: 100%; border: 0; border-radius: 999px; padding: 16px; margin-top: 16px; cursor: pointer;
+    font: 700 16px Quicksand, system-ui, sans-serif; background: var(--ink); color: var(--on-ink); }
+  button.danger { background: var(--red); color: var(--on-red); }
+  button:disabled { opacity: .5; cursor: default; }
+  .hint { color: var(--muted); font-size: 14px; text-align: center; margin-top: 12px; }
+  .done { font-size: 48px; line-height: 1; margin-bottom: 12px; }
+  h2 { font-size: 18px; margin: 0 0 12px; }
+  .meta { color: var(--muted); font-size: 14px; margin: 16px 0 4px; }
+  .card h2 + .meta { margin-top: 0; }
+  .card .quote { margin-bottom: 8px; }
+  .photos.small { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 4px; }
+  .photos.small img { border-radius: 10px; }
+  .photos.small figcaption { font-size: 12px; }
+</style>
+</head>
+<body>
+<main id="app"><p class="sub">Loading the report…</p></main>
+<script>
+  const LABELS = {
+    remove: 'Remove',
+    remove_suspend: 'Remove + suspend 7 days',
+    ban: 'Remove + ban',
+    dismiss: 'Dismiss',
+  };
+  // What each button does, said plainly before you confirm it.
+  const EXPLAIN = {
+    remove: 'The reported content is deleted and the account gets a strike.',
+    remove_suspend: 'The content is deleted, the account gets a strike, and it is hidden from everyone and can’t sign in for 7 days.',
+    ban: 'The content is deleted, the account gets a strike, and it is hidden from everyone and can’t sign in, for good. It can be lifted later by hand.',
+    dismiss: 'Nothing is removed and no strike is counted. The report is closed.',
+  };
+  const app = document.getElementById('app');
+  const params = new URLSearchParams(location.hash.slice(1));
+  const token = params.get('t');
+  const api = params.get('api');
+
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const show = (html) => { app.innerHTML = '<div class="brand">Selfera · moderation</div>' + html; };
+  const fail = (message) => show(`<h1>Can’t open this</h1><p class="sub">${esc(message)}</p>`);
+  const who = (p) => p ? `@${esc(p.handle)}${p.name ? ' (' + esc(p.name) + ')' : ''}` : 'nobody';
+  const what = (r) => ({ post: `Day ${r.day} post`, comment: 'Comment', profile: 'Profile', era: 'Era' })[r.kind];
+
+  async function call(init) {
+    const res = await fetch(init ? api : `${api}?t=${encodeURIComponent(token)}`, init);
+    const body = await res.json().catch(() => ({ error: `The server answered ${res.status}.` }));
+    if (!res.ok) throw new Error(body.error || `The server answered ${res.status}.`);
+    return body;
+  }
+
+  async function load() {
+    if (!token || !api) return fail('This link is incomplete. Open it again from the report email.');
+    let v;
+    try { v = await call(); } catch (e) { return fail(e.message); }
+
+    if (v.handled) {
+      return show(`<h1>Already handled</h1>
+        <p class="sub">This report was ${esc(v.status)}${v.resolution ? ': ' + esc(v.resolution) : '.'}</p>`);
+    }
+
+    const r = v.report;
+    const words = Object.entries(r.snapshot)
+      .filter(([, val]) => val && typeof val !== 'object')
+      .map(([k, val]) => `<dt>${esc(k.replace('_', ' '))}</dt><dd class="quote">${esc(val)}</dd>`).join('');
+    const tasks = Array.isArray(r.snapshot.tasks) ? `<dt>tasks</dt><dd>${esc(r.snapshot.tasks.join(', '))}</dd>` : '';
+    const photos = v.photos.length
+      ? `<div class="card"><h2>Photos</h2><div class="photos">${v.photos.map((p) =>
+          `<figure><a href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" alt="${esc(p.label)}" loading="lazy"></a><figcaption>${esc(p.label)}</figcaption></figure>`).join('')}</div></div>`
+      : '';
+    const suggested = v.action === v.suggested ? '<span class="badge">suggested</span>' : '';
+    const strikes = v.subject ? `${v.strikes} so far` : '—';
+    const suspended = v.subject && v.subject.suspended_until ? `<dt>Suspended</dt><dd>until ${esc(v.subject.suspended_until)}</dd>` : '';
+
+    show(`<h1>${esc(LABELS[v.action])}?${suggested}</h1>
+      <p class="sub">${esc(EXPLAIN[v.action])}</p>
+      <div class="card"><dl>
+        <dt>What</dt><dd>${v.subject ? `${esc(what(r))} by ${who(v.subject)}` : `Preset ${esc(what(r).toLowerCase())}`}</dd>
+        <dt>Reason</dt><dd>${esc(r.reason.replace('_', ' '))}</dd>
+        <dt>Their words</dt><dd class="quote">${esc(r.details || '—')}</dd>
+        <dt>Reported</dt><dd>${esc(new Date(r.created_at).toLocaleString())} by ${who(v.reporter)}</dd>
+        <dt>Reported by</dt><dd>${v.context.reporters} ${v.context.reporters === 1 ? 'person' : 'people'}</dd>
+        <dt>Strikes</dt><dd>${strikes} (suggested: ${esc(LABELS[v.suggested])})</dd>
+        ${suspended}
+      </dl></div>
+      ${words || tasks ? `<div class="card"><h2>As it was reported</h2><dl>${words}${tasks}</dl></div>` : ''}
+      ${photos}
+      ${activity(v.context)}
+      <label for="note">Note for the record (optional)</label>
+      <textarea id="note" maxlength="500" placeholder="Why, in a line"></textarea>
+      <button id="go" class="${v.action === 'dismiss' ? '' : 'danger'}">Confirm: ${esc(LABELS[v.action])}</button>
+      <p class="hint">Wrong button? Close this page and pick another in the email.</p>`);
+
+    document.getElementById('go').addEventListener('click', confirm);
+  }
+
+  const date = (s) => new Date(s).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+
+  // Everything around the reported item: the account as it is now, its
+  // latest days and comments, and what earlier reports about it came to —
+  // enough to tell a one-off from a pattern.
+  function activity(c) {
+    if (!c.profile) return '';
+    const p = c.profile;
+    const now = `<div class="card"><h2>Their profile now</h2><dl>
+        <dt>Handle</dt><dd>@${esc(p.handle)}</dd>
+        <dt>Name</dt><dd>${esc(p.name || '—')}</dd>
+        <dt>Bio</dt><dd class="quote">${esc(p.bio || '—')}</dd>
+        <dt>Joined</dt><dd>${esc(date(p.created_at))}</dd>
+      </dl></div>`;
+    const posts = c.posts.length
+      ? `<div class="card"><h2>Recent posts</h2>${c.posts.map((d) => `
+          <p class="meta">Day ${d.day} · ${esc(d.era)} · ${esc(date(d.at))}</p>
+          ${d.caption ? `<p class="quote">${esc(d.caption)}</p>` : ''}
+          <div class="photos small">${d.photos.map((ph) =>
+            `<figure><a href="${esc(ph.url)}" target="_blank" rel="noopener"><img src="${esc(ph.url)}" alt="${esc(ph.label)}" loading="lazy"></a><figcaption>${esc(ph.label)}</figcaption></figure>`).join('')}</div>`).join('')}</div>`
+      : '';
+    const comments = c.comments.length
+      ? `<div class="card"><h2>Latest comments</h2>${c.comments.map((m) =>
+          `<p class="meta">${esc(date(m.created_at))} · under a Day ${m.day} post</p><p class="quote">${esc(m.body)}</p>`).join('')}</div>`
+      : '';
+    const earlier = `<div class="card"><h2>Earlier reports</h2>${c.earlier.length
+      ? c.earlier.map((r) => `<p class="meta">${esc(date(r.created_at))} · ${esc(r.kind)} · ${esc(r.reason.replace('_', ' '))} · ${esc(r.status)}</p>
+          ${r.resolution ? `<p class="quote">${esc(r.resolution)}</p>` : ''}`).join('')
+      : '<p class="quote">None — this is the first.</p>'}</div>`;
+    return now + posts + comments + earlier;
+  }
+
+  async function confirm() {
+    const go = document.getElementById('go');
+    go.disabled = true;
+    go.textContent = 'Working…';
+    try {
+      const res = await call({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, note: document.getElementById('note').value.trim() || undefined }),
+      });
+      if (res.already) {
+        return show(`<h1>Already handled</h1><p class="sub">This report was ${esc(res.status)}${res.resolution ? ': ' + esc(res.resolution) : '.'}</p>`);
+      }
+      const strikes = res.strikes === null ? '' : `<dt>Strikes now</dt><dd>${res.strikes}</dd><dt>That calls for</dt><dd>${esc(res.calls_for)}</dd>`;
+      show(`<div class="done">✓</div><h1>Done</h1>
+        <div class="card"><dl><dt>What was done</dt><dd>${esc(res.done)}</dd>${strikes}</dl></div>
+        <p class="hint">The report is closed. You can close this page.</p>`);
+    } catch (e) {
+      go.disabled = false;
+      go.textContent = 'Try again';
+      app.insertAdjacentHTML('beforeend', `<p class="hint">${esc(e.message)}</p>`);
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>

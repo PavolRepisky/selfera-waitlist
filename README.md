@@ -90,3 +90,13 @@ Play Store protection → Play app signing), not the upload key. A build
 installed from anywhere but Play is signed differently and needs its own
 fingerprint added to the list. The app's side and how to check it are in the app's wiki, Deploy
 and CI › Shared links.
+
+### Moderation page
+
+`public/moderate.html` is where a report email's buttons land (the app's
+`report-alert` function links to it through `MODERATION_PAGE_URL`). It's
+copied into the build as it is, with no script from `src/`, so no analytics
+run on it, and it asks not to be indexed. The token and the address of the
+`moderate` function ride in the link's fragment, which never reaches this
+site's server. The function and how acting on a report works are in the
+app's repo (`supabase/functions/moderate`, `supabase/README.md`).
