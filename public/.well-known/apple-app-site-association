@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["2457NT6849.app.selfera"],
+        "components": [
+          { "/": "/era/*", "comment": "An era's page" },
+          { "/": "/u/*", "comment": "Someone's profile" }
+        ]
+      }
+    ]
+  }
+}

@@ -71,3 +71,22 @@ a new provider, change them too and update the date at the top.
 Netlify, Cloudflare Pages) with the `VITE_*` variables set at build time.
 Set `VITE_SITE_URL` to the public address so invite links point there.
 `vercel.json` turns on clean URLs; another host needs the same setting.
+
+### Shared links
+
+The app shares `selfera.app/era/<id>` and `selfera.app/u/<handle>`. With the
+app installed the phone opens it there; without it, `vercel.json` rewrites
+both to `open.html`, which names what was shared and shows the store buttons
+(only the phone's own store on a phone), plus Open in Selfera for when the
+app is installed but the link was opened inside another app's browser.
+
+The phone only hands a link to the app if this site vouches for it:
+`public/.well-known/apple-app-site-association` (iOS) and `assetlinks.json`
+(Android), served as JSON with no redirect. They claim only `/era/*` and
+`/u/*`, so the policy pages always open here. The iOS file names the app as
+`2457NT6849.app.selfera` (Team ID, then bundle id). `assetlinks.json` holds
+the SHA-256 of Play's app signing key (Play Console → Protected with Play →
+Play Store protection → Play app signing), not the upload key. A build
+installed from anywhere but Play is signed differently and needs its own
+fingerprint added to the list. The app's side and how to check it are in the app's wiki, Deploy
+and CI › Shared links.

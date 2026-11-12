@@ -1,0 +1,19 @@
+/* The shared-link page: the waitlist's card, with the app and the stores in
+ * place of the form. */
+
+.open-actions { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+
+/* The app's solid pill, as the form's button, full width. */
+.open-app { display: block; text-align: center; text-decoration: none; padding: 16px 20px; }
+
+.stores { display: flex; gap: 10px; }
+.store {
+  flex: 1; padding: 14px 16px; border-radius: 999px; text-align: center; text-decoration: none;
+  background: rgba(255, 255, 255, 0.85); border: 1.5px solid var(--white);
+  font: 600 15px/1.2 var(--font); color: var(--ink);
+  transition: background-color 0.2s ease;
+}
+@media (hover: hover) {
+  .store:hover { background: var(--white); }
+}
+.store:focus-visible, .open-app:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }

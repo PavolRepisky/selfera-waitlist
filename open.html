@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Selfera</title>
+    <meta name="description" content="Photograph every task, post your day with friends, and keep each other going." />
+    <meta property="og:title" content="Selfera" />
+    <meta property="og:description" content="Photograph every task, post your day with friends, and keep each other going." />
+    <meta property="og:image" content="/scene/scene.jpg" />
+    <meta name="theme-color" content="#faf9f7" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600&family=Geist:wght@500&family=Inter+Tight:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="/src/open.css" />
+  </head>
+  <!-- Where a shared link lands (selfera.app/era/<id>, selfera.app/u/<handle>)
+       when the phone didn't hand it to the app: the app isn't installed, or
+       the link was opened inside another app's browser. The scene is the
+       still photo and the logo the still metal, with no WebGL: someone here
+       wants the app, not the show. -->
+  <body>
+    <main class="stage">
+      <div class="scene" aria-hidden="true"></div>
+
+      <div class="card">
+        <div class="metal" aria-hidden="true"></div>
+
+        <div class="texts">
+          <h2 class="eyebrow">Selfera</h2>
+          <h1 id="title">Open this in Selfera</h1>
+          <p id="lede" class="lede">Photograph every task, post your day with friends, and keep each other going.</p>
+        </div>
+
+        <div class="open-actions">
+          <a id="open" class="submit open-app" href="selfera://">Open in Selfera</a>
+          <div class="stores">
+            <a id="app-store" class="store" href="#">App Store</a>
+            <a id="play-store" class="store" href="#">Google Play</a>
+          </div>
+        </div>
+
+        <nav class="site-links" aria-label="Selfera pages">
+          <a href="/">Home</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
+          <a href="/support">Support</a>
+        </nav>
+      </div>
+    </main>
+
+    <script type="module" src="/src/open.ts"></script>
+  </body>
+</html>

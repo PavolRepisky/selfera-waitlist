@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.selfera",
+      "sha256_cert_fingerprints": ["FF:BD:90:2C:97:53:ED:41:2A:29:DF:99:3A:61:19:EF:E9:77:5F:C5:47:14:C9:B3:08:23:B6:7E:D6:DD:E0:D0"]
+    }
+  }
+]
