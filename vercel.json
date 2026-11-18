@@ -1,7 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/get",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(iPhone|iPad|iPod).*" }],
+      "destination": "https://apps.apple.com/search?term=selfera",
+      "permanent": false
+    },
+    {
+      "source": "/get",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*Android.*" }],
+      "destination": "https://play.google.com/store/apps/details?id=app.selfera",
+      "permanent": false
+    }
+  ],
   "rewrites": [
+    { "source": "/get", "destination": "/open" },
     { "source": "/era/:id", "destination": "/open" },
     { "source": "/u/:handle", "destination": "/open" }
   ],
